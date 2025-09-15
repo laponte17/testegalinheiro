@@ -1,0 +1,256 @@
+<!-- Chosen Palette: Energetic & Playful -->
+<!-- Application Structure Plan: A single-page dashboard structure was designed to transform the static reports into a functional business tool. The flow is organized into four logical sections: 1. A high-level 'Dashboard' with key performance indicators (KPIs) for a quick daily overview. 2. A 'Financial Analysis' section with interactive charts for a deeper dive into investments and profitability. 3. An 'Operational Plan' with interactive tabs for daily, weekly, and monthly checklists, making routines easy to follow. 4. A 'Growth Strategy' section summarizing the business plan's core concepts. This structure was chosen to provide a practical and user-friendly experience, moving from quick status checks to detailed planning and execution. -->
+<!-- Visualization & Content Choices: 
+- KPIs (Production, Revenue): Goal: Inform -> Method: Large text in styled cards (HTML/Tailwind) -> Interaction: None -> Justification: Provides immediate, high-impact visibility of the most critical business metrics.
+- Investment Breakdown: Goal: Organize (Composition) -> Method: Donut Chart (Chart.js/Canvas) -> Interaction: Hover tooltips -> Justification: Best way to visualize parts of a whole, clearly showing where the initial investment goes.
+- Financial Comparison: Goal: Compare -> Method: Horizontal Bar Chart (Chart.js/Canvas) -> Interaction: Hover tooltips -> Justification: Effectively compares distinct financial figures like investment, revenue, and costs side-by-side.
+- Operational Routines: Goal: Organize -> Method: Interactive Tabs & Checklists (HTML/CSS/JS) -> Interaction: Click to switch views -> Justification: Turns a static list into an engaging and easy-to-use tool for managing daily tasks.
+- All diagrams and layouts use structured HTML/CSS with Tailwind.
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - Galinheiro Sustentável</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+        .kpi-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        .tab-button {
+            transition: all 0.3s;
+            border-bottom: 4px solid transparent;
+        }
+        .tab-button.active {
+            border-bottom-color: #FF4E50;
+            color: #FF4E50;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-[#FF4E50]">Painel de Controle do Negócio</h1>
+            <p class="text-lg md:text-xl text-gray-600 mt-2">Sua ferramenta de gestão para o galinheiro de 100 aves.</p>
+        </header>
+
+        <!-- Seção de KPIs -->
+        <section id="dashboard" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6">Visão Geral do Mês</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="kpi-card">
+                    <h3 class="text-lg font-bold text-gray-500">Produção Diária Média</h3>
+                    <p class="text-5xl font-black text-[#FC913A] mt-2">~70</p>
+                    <p class="text-gray-600">ovos</p>
+                </div>
+                <div class="kpi-card">
+                    <h3 class="text-lg font-bold text-gray-500">Receita Bruta Mensal</h3>
+                    <p class="text-5xl font-black text-green-500 mt-2">R$2.625</p>
+                    <p class="text-gray-600">com base em R$15/dúzia</p>
+                </div>
+                <div class="kpi-card">
+                    <h3 class="text-lg font-bold text-gray-500">Custo Mensal (Ração)</h3>
+                    <p class="text-5xl font-black text-red-500 mt-2">R$900</p>
+                    <p class="text-gray-600">principal despesa</p>
+                </div>
+                <div class="kpi-card">
+                    <h3 class="text-lg font-bold text-gray-500">Lucro Bruto Mensal</h3>
+                    <p class="text-5xl font-black text-blue-500 mt-2">R$1.725</p>
+                    <p class="text-gray-600">potencial de ganho</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Financeira -->
+        <section id="finance" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6">Análise Financeira</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-center mb-4">Detalhamento do Investimento Inicial (R$2.400)</h3>
+                    <div class="chart-container">
+                        <canvas id="investmentChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-center mb-4">Projeção Financeira</h3>
+                     <div class="chart-container" style="height: 350px;">
+                        <canvas id="financeProjectionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Operacional -->
+        <section id="operations" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6">Plano Operacional</h2>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="flex justify-center -mb-px space-x-8" aria-label="Tabs">
+                        <button id="tab-daily" class="tab-button active whitespace-nowrap py-4 px-1 text-lg font-medium">Diária</button>
+                        <button id="tab-weekly" class="tab-button whitespace-nowrap py-4 px-1 text-lg font-medium">Semanal</button>
+                        <button id="tab-monthly" class="tab-button whitespace-nowrap py-4 px-1 text-lg font-medium">Mensal</button>
+                    </nav>
+                </div>
+                <div id="content-daily" class="tab-content text-gray-700 space-y-3">
+                    <p><strong>Manhã (6h-7h):</strong> Soltar as aves, verificar água/ração, 1ª coleta de ovos.</p>
+                    <p><strong>Tarde (14h-15h):</strong> Verificar água/ração, 2ª coleta de ovos.</p>
+                    <p><strong>Noite (18h-19h):</strong> Recolher e fechar as aves no abrigo.</p>
+                </div>
+                <div id="content-weekly" class="tab-content hidden text-gray-700 space-y-3">
+                    <p><strong>Limpeza:</strong> Remover fezes, limpar comedouros e bebedouros.</p>
+                    <p><strong>Saúde:</strong> Observar comportamento e saúde geral do plantel.</p>
+                    <p><strong>Gestão:</strong> Anotar vendas e gastos da semana.</p>
+                </div>
+                <div id="content-monthly" class="tab-content hidden text-gray-700 space-y-3">
+                    <p><strong>Limpeza Profunda:</strong> Trocar toda a cama do galinheiro. Ensacar a antiga para vender como adubo.</p>
+                    <p><strong>Manutenção:</strong> Inspecionar telas, telhado e estrutura geral do galinheiro.</p>
+                    <p><strong>Financeiro:</strong> Fechar o balanço do mês: calcular lucro e planejar o próximo mês.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Estratégia -->
+        <section id="strategy">
+            <h2 class="text-3xl font-bold text-center mb-6">Estratégia de Crescimento</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-3 text-[#FF4E50]">Produtos e Serviços</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Ovos Caipiras Frescos (Carro-chefe)</li>
+                        <li>Adubo Orgânico (Receita extra)</li>
+                        <li>Pintinhos e Aves de descarte</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-3 text-[#FC913A]">Canais de Venda</h3>
+                     <ul class="list-disc list-inside space-y-2">
+                        <li>Venda Direta (vizinhos, amigos)</li>
+                        <li>Grupos de WhatsApp e Redes Sociais</li>
+                        <li>Parcerias com comércios locais</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-3 text-[#F9D423]">O Ciclo Sustentável</h3>
+                    <p>As galinhas produzem ovos (lucro) e esterco. O esterco vira adubo, que gera uma nova receita, otimizando os ganhos e reduzindo o desperdício.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Painel de Controle desenvolvido com base no modelo de negócio para galinheiro sustentável.</p>
+        </footer>
+    </div>
+
+    <script>
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+
+        // Gráfico de Investimento
+        const investmentCtx = document.getElementById('investmentChart').getContext('2d');
+        new Chart(investmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Estrutura/Telas', 'Aves', 'Ninhos/Puleiros', 'Acessórios', 'Ração Inicial', 'Medicamentos'],
+                datasets: [{
+                    data: [1200, 600, 200, 160, 200, 40],
+                    backgroundColor: ['#FF4E50', '#FC913A', '#F9D423', '#EDE574', '#55B4B0', '#9AD6C7'],
+                    borderColor: '#f7fafc',
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: { callbacks: { title: tooltipTitleCallback } }
+                }
+            }
+        });
+
+        // Gráfico de Projeção Financeira
+        const financeProjectionCtx = document.getElementById('financeProjectionChart').getContext('2d');
+        new Chart(financeProjectionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Investimento Inicial', 'Receita Mensal Bruta', 'Custo Mensal', 'Lucro Mensal Bruto'],
+                datasets: [{
+                    label: 'Valor (R$)',
+                    data: [2400, 2625, 900, 1725],
+                    backgroundColor: ['#FF4E50', '#4CAF50', '#F44336', '#2196F3'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { title: tooltipTitleCallback } }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { callback: value => 'R$' + value }
+                    }
+                }
+            }
+        });
+
+        // Lógica das Abas
+        const tabs = ['daily', 'weekly', 'monthly'];
+        tabs.forEach(tabId => {
+            document.getElementById(`tab-${tabId}`).addEventListener('click', () => {
+                // Desativa todas as abas e esconde todos os conteúdos
+                tabs.forEach(id => {
+                    document.getElementById(`tab-${id}`).classList.remove('active');
+                    document.getElementById(`content-${id}`).classList.add('hidden');
+                });
+                // Ativa a aba clicada e mostra o conteúdo correspondente
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
