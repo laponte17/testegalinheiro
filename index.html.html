@@ -1,256 +1,1256 @@
-<!-- Chosen Palette: Energetic & Playful -->
-<!-- Application Structure Plan: A single-page dashboard structure was designed to transform the static reports into a functional business tool. The flow is organized into four logical sections: 1. A high-level 'Dashboard' with key performance indicators (KPIs) for a quick daily overview. 2. A 'Financial Analysis' section with interactive charts for a deeper dive into investments and profitability. 3. An 'Operational Plan' with interactive tabs for daily, weekly, and monthly checklists, making routines easy to follow. 4. A 'Growth Strategy' section summarizing the business plan's core concepts. This structure was chosen to provide a practical and user-friendly experience, moving from quick status checks to detailed planning and execution. -->
-<!-- Visualization & Content Choices: 
-- KPIs (Production, Revenue): Goal: Inform -> Method: Large text in styled cards (HTML/Tailwind) -> Interaction: None -> Justification: Provides immediate, high-impact visibility of the most critical business metrics.
-- Investment Breakdown: Goal: Organize (Composition) -> Method: Donut Chart (Chart.js/Canvas) -> Interaction: Hover tooltips -> Justification: Best way to visualize parts of a whole, clearly showing where the initial investment goes.
-- Financial Comparison: Goal: Compare -> Method: Horizontal Bar Chart (Chart.js/Canvas) -> Interaction: Hover tooltips -> Justification: Effectively compares distinct financial figures like investment, revenue, and costs side-by-side.
-- Operational Routines: Goal: Organize -> Method: Interactive Tabs & Checklists (HTML/CSS/JS) -> Interaction: Click to switch views -> Justification: Turns a static list into an engaging and easy-to-use tool for managing daily tasks.
-- All diagrams and layouts use structured HTML/CSS with Tailwind.
--->
-<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Controle - Galinheiro Sustentável</title>
+    <title>Caipira Premium Plus - Gestão Inteligente</title>
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        /* Estilos personalizados para complementar o Tailwind */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            background-color: #f7f3e9; /* Um tom de creme/bege claro */
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 350px;
+        .brand-text {
+            color: #8B4513; /* Marrom sela */
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 320px;
-            }
+        .brand-bg {
+            background-color: #8B4513;
         }
-        .kpi-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            padding: 1.5rem;
-            text-align: center;
-            transition: transform 0.2s;
+        .brand-accent {
+            background-color: #FFD700; /* Dourado */
         }
-        .kpi-card:hover {
-            transform: translateY(-5px);
+        .brand-accent-text {
+            color: #FFD700;
         }
-        .tab-button {
-            transition: all 0.3s;
-            border-bottom: 4px solid transparent;
+        .sidebar-icon {
+            width: 24px;
+            height: 24px;
         }
-        .tab-button.active {
-            border-bottom-color: #FF4E50;
-            color: #FF4E50;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f7f3e9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D2B48C; /* Tan */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8B4513;
+        }
+        /* Estilo para loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8B4513;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="antialiased text-gray-800">
 
-    <div class="container mx-auto p-4 md:p-8">
-
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-black text-[#FF4E50]">Painel de Controle do Negócio</h1>
-            <p class="text-lg md:text-xl text-gray-600 mt-2">Sua ferramenta de gestão para o galinheiro de 100 aves.</p>
-        </header>
-
-        <!-- Seção de KPIs -->
-        <section id="dashboard" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-6">Visão Geral do Mês</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="kpi-card">
-                    <h3 class="text-lg font-bold text-gray-500">Produção Diária Média</h3>
-                    <p class="text-5xl font-black text-[#FC913A] mt-2">~70</p>
-                    <p class="text-gray-600">ovos</p>
-                </div>
-                <div class="kpi-card">
-                    <h3 class="text-lg font-bold text-gray-500">Receita Bruta Mensal</h3>
-                    <p class="text-5xl font-black text-green-500 mt-2">R$2.625</p>
-                    <p class="text-gray-600">com base em R$15/dúzia</p>
-                </div>
-                <div class="kpi-card">
-                    <h3 class="text-lg font-bold text-gray-500">Custo Mensal (Ração)</h3>
-                    <p class="text-5xl font-black text-red-500 mt-2">R$900</p>
-                    <p class="text-gray-600">principal despesa</p>
-                </div>
-                <div class="kpi-card">
-                    <h3 class="text-lg font-bold text-gray-500">Lucro Bruto Mensal</h3>
-                    <p class="text-5xl font-black text-blue-500 mt-2">R$1.725</p>
-                    <p class="text-gray-600">potencial de ganho</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Seção Financeira -->
-        <section id="finance" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-6">Análise Financeira</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold text-center mb-4">Detalhamento do Investimento Inicial (R$2.400)</h3>
-                    <div class="chart-container">
-                        <canvas id="investmentChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold text-center mb-4">Projeção Financeira</h3>
-                     <div class="chart-container" style="height: 350px;">
-                        <canvas id="financeProjectionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Seção Operacional -->
-        <section id="operations" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-6">Plano Operacional</h2>
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="border-b border-gray-200 mb-4">
-                    <nav class="flex justify-center -mb-px space-x-8" aria-label="Tabs">
-                        <button id="tab-daily" class="tab-button active whitespace-nowrap py-4 px-1 text-lg font-medium">Diária</button>
-                        <button id="tab-weekly" class="tab-button whitespace-nowrap py-4 px-1 text-lg font-medium">Semanal</button>
-                        <button id="tab-monthly" class="tab-button whitespace-nowrap py-4 px-1 text-lg font-medium">Mensal</button>
-                    </nav>
-                </div>
-                <div id="content-daily" class="tab-content text-gray-700 space-y-3">
-                    <p><strong>Manhã (6h-7h):</strong> Soltar as aves, verificar água/ração, 1ª coleta de ovos.</p>
-                    <p><strong>Tarde (14h-15h):</strong> Verificar água/ração, 2ª coleta de ovos.</p>
-                    <p><strong>Noite (18h-19h):</strong> Recolher e fechar as aves no abrigo.</p>
-                </div>
-                <div id="content-weekly" class="tab-content hidden text-gray-700 space-y-3">
-                    <p><strong>Limpeza:</strong> Remover fezes, limpar comedouros e bebedouros.</p>
-                    <p><strong>Saúde:</strong> Observar comportamento e saúde geral do plantel.</p>
-                    <p><strong>Gestão:</strong> Anotar vendas e gastos da semana.</p>
-                </div>
-                <div id="content-monthly" class="tab-content hidden text-gray-700 space-y-3">
-                    <p><strong>Limpeza Profunda:</strong> Trocar toda a cama do galinheiro. Ensacar a antiga para vender como adubo.</p>
-                    <p><strong>Manutenção:</strong> Inspecionar telas, telhado e estrutura geral do galinheiro.</p>
-                    <p><strong>Financeiro:</strong> Fechar o balanço do mês: calcular lucro e planejar o próximo mês.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Seção de Estratégia -->
-        <section id="strategy">
-            <h2 class="text-3xl font-bold text-center mb-6">Estratégia de Crescimento</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold mb-3 text-[#FF4E50]">Produtos e Serviços</h3>
-                    <ul class="list-disc list-inside space-y-2">
-                        <li>Ovos Caipiras Frescos (Carro-chefe)</li>
-                        <li>Adubo Orgânico (Receita extra)</li>
-                        <li>Pintinhos e Aves de descarte</li>
-                    </ul>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold mb-3 text-[#FC913A]">Canais de Venda</h3>
-                     <ul class="list-disc list-inside space-y-2">
-                        <li>Venda Direta (vizinhos, amigos)</li>
-                        <li>Grupos de WhatsApp e Redes Sociais</li>
-                        <li>Parcerias com comércios locais</li>
-                    </ul>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold mb-3 text-[#F9D423]">O Ciclo Sustentável</h3>
-                    <p>As galinhas produzem ovos (lucro) e esterco. O esterco vira adubo, que gera uma nova receita, otimizando os ganhos e reduzindo o desperdício.</p>
-                </div>
-            </div>
-        </section>
-
-        <footer class="text-center mt-12 text-gray-500 text-sm">
-            <p>Painel de Controle desenvolvido com base no modelo de negócio para galinheiro sustentável.</p>
-        </footer>
+    <div id="app" class="flex h-screen overflow-hidden">
+        <!-- O conteúdo da aplicação será renderizado aqui pelo JavaScript -->
+    </div>
+    
+    <!-- Modal para feedback -->
+    <div id="feedback-modal" class="fixed top-5 right-5 z-50 transition-transform translate-x-[200%] duration-500">
+        <!-- O conteúdo do modal será inserido aqui -->
     </div>
 
-    <script>
-        const tooltipTitleCallback = (tooltipItems) => {
-            const item = tooltipItems[0];
-            let label = item.chart.data.labels[item.dataIndex];
-            if (Array.isArray(label)) {
-                return label.join(' ');
-            }
-            return label;
+    <!-- Modal genérico -->
+    <div id="generic-modal-container" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden items-center justify-center">
+        <div id="generic-modal-content" class="bg-white rounded-lg shadow-xl p-6 w-11/12 md:w-1/2 lg:w-1/3 relative">
+            <!-- Conteúdo do modal dinâmico -->
+        </div>
+    </div>
+
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CONFIGURAÇÃO E INICIALIZAÇÃO ---
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'caipira-premium-plus-app';
+        let firebaseConfig;
+        let app;
+        let db;
+        let auth;
+        
+        let userId = null;
+        let dbRef = null;
+        let unsubscribe = null; // Para anular a inscrição do onSnapshot
+
+        // --- GESTÃO DE ESTADO CENTRALIZADA ---
+
+        const appState = {
+            currentView: 'dashboard',
+            isLoading: true,
+            data: {
+                transactions: [],
+                customers: [],
+                inventory: { birds: 0, feedKg: 0 },
+                routines: {
+                    daily: [],
+                    weekly: [],
+                    monthly: []
+                },
+                goals: { monthlyRevenue: 1000, growthRate: 5 }
+            },
+            filters: {
+                type: 'todos',
+                category: 'todas',
+                startDate: '',
+                endDate: '',
+            },
+            charts: {},
+            isAudioPlaying: false,
         };
 
-        // Gráfico de Investimento
-        const investmentCtx = document.getElementById('investmentChart').getContext('2d');
-        new Chart(investmentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Estrutura/Telas', 'Aves', 'Ninhos/Puleiros', 'Acessórios', 'Ração Inicial', 'Medicamentos'],
-                datasets: [{
-                    data: [1200, 600, 200, 160, 200, 40],
-                    backgroundColor: ['#FF4E50', '#FC913A', '#F9D423', '#EDE574', '#55B4B0', '#9AD6C7'],
-                    borderColor: '#f7fafc',
-                    borderWidth: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: { callbacks: { title: tooltipTitleCallback } }
-                }
-            }
-        });
+        // --- LÓGICA DE RENDERIZAÇÃO ---
 
-        // Gráfico de Projeção Financeira
-        const financeProjectionCtx = document.getElementById('financeProjectionChart').getContext('2d');
-        new Chart(financeProjectionCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Investimento Inicial', 'Receita Mensal Bruta', 'Custo Mensal', 'Lucro Mensal Bruto'],
-                datasets: [{
-                    label: 'Valor (R$)',
-                    data: [2400, 2625, 900, 1725],
-                    backgroundColor: ['#FF4E50', '#4CAF50', '#F44336', '#2196F3'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { title: tooltipTitleCallback } }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: { callback: value => 'R$' + value }
+        function render() {
+            const appContainer = document.getElementById('app');
+            if (appState.isLoading) {
+                appContainer.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="loader mx-auto"></div>
+                            <p class="mt-4 text-lg brand-text font-semibold">A carregar os dados do galinheiro...</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            appContainer.innerHTML = `
+                ${renderSidebar()}
+                <main class="flex-1 overflow-y-auto p-4 md:p-8">
+                    ${renderHeader()}
+                    <div id="content" class="mt-8">
+                        ${renderCurrentView()}
+                    </div>
+                </main>
+            `;
+            attachEventListeners();
+            updateCharts();
+        }
+
+        function renderSidebar() {
+            const navItems = [
+                { id: 'dashboard', label: 'Dashboard' },
+                { id: 'financas', label: 'Finanças' },
+                { id: 'rotinas', label: 'Rotinas e Inventário' },
+                { id: 'clientes', label: 'Clientes' },
+                { id: 'metas', label: 'Metas e Projeções' },
+                { id: 'marketing', label: 'Assistente de Marketing' }
+            ];
+            return `
+                <aside class="w-16 md:w-64 brand-bg text-white flex flex-col transition-all duration-300">
+                    <div class="h-20 flex items-center justify-center md:justify-start md:pl-6 shrink-0">
+                        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                            <span class="text-2xl" style="color: #FFD700;">&#x1F423;</span> <!-- Emoji de pintinho -->
+                        </div>
+                        <span class="hidden md:block ml-4 text-xl font-bold text-white">Caipira Premium</span>
+                    </div>
+                    <nav class="flex-1 overflow-y-auto px-2 md:px-4 mt-4">
+                        ${navItems.map(item => `
+                            <a href="#" data-view="${item.id}" class="nav-link flex items-center p-3 my-2 rounded-lg transition-colors duration-200 ${appState.currentView === item.id ? 'bg-white/20' : 'hover:bg-white/10'}">
+                                <span class="text-2xl">${getIconForView(item.id)}</span>
+                                <span class="hidden md:block ml-4 font-medium">${item.label}</span>
+                            </a>
+                        `).join('')}
+                    </nav>
+                </aside>
+            `;
+        }
+
+        function renderHeader() {
+            const titles = {
+                dashboard: 'Visão Geral',
+                financas: 'Controlo Financeiro Avançado',
+                rotinas: 'Rotinas Diárias e Gestão de Inventário',
+                clientes: 'Gestão de Clientes',
+                metas: 'Metas e Projeções de Crescimento',
+                marketing: 'Assistente de Marketing com IA'
+            };
+            return `
+                <header>
+                    <h1 class="text-3xl font-bold brand-text">${titles[appState.currentView]}</h1>
+                    <p class="text-gray-500 mt-1">Bem-vindo! Aqui estão as informações mais recentes do seu negócio.</p>
+                </header>
+            `;
+        }
+
+        function renderCurrentView() {
+            switch (appState.currentView) {
+                case 'dashboard': return renderDashboard();
+                case 'financas': return renderFinancas();
+                case 'rotinas': return renderRotinas();
+                case 'clientes': return renderClientes();
+                case 'metas': return renderMetas();
+                case 'marketing': return renderMarketing();
+                default: return `<p>Página não encontrada.</p>`;
+            }
+        }
+        
+        // --- FUNÇÕES DE RENDERIZAÇÃO DAS VIEWS ---
+        
+        function renderDashboard() {
+            const { totalRevenue, totalExpense, balance, profitPerDozen } = calculateFinancials();
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    ${renderKPI('Receita Total', `R$ ${totalRevenue.toFixed(2)}`, 'positive')}
+                    ${renderKPI('Despesa Total', `R$ ${totalExpense.toFixed(2)}`, 'negative')}
+                    ${renderKPI('Saldo Atual', `R$ ${balance.toFixed(2)}`, balance >= 0 ? 'positive' : 'negative')}
+                    ${renderKPI('Lucro por Dúzia', `R$ ${profitPerDozen.toFixed(2)}`, 'neutral')}
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-8">
+                    <div class="lg:col-span-3 bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold brand-text mb-4">Evolução Mensal (Receita vs. Despesa)</h3>
+                        <canvas id="monthlyEvolutionChart"></canvas>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="font-semibold brand-text mb-4">Despesas por Categoria</h3>
+                        <canvas id="expensesByCategoryChart"></canvas>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-semibold brand-text mb-4">Vendas por Cliente</h3>
+                    <canvas id="salesByCustomerChart"></canvas>
+                </div>
+            `;
+        }
+        
+        function renderFinancas() {
+            const { transactions } = getFilteredData();
+            const expenseCategories = ['Alimentação', 'Manutenção', 'Saúde', 'Embalagens', 'Outros'];
+            const revenueCategories = ['Vendas', 'Outros'];
+
+            return `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold brand-text mb-4">Adicionar Nova Transação</h3>
+                    <form id="add-transaction-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <input type="hidden" name="id">
+                        <div>
+                            <label for="trans-description" class="block text-sm font-medium text-gray-700">Descrição</label>
+                            <input type="text" id="trans-description" name="description" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label for="trans-amount" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
+                            <input type="number" id="trans-amount" name="amount" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label for="trans-date" class="block text-sm font-medium text-gray-700">Data</label>
+                            <input type="date" id="trans-date" name="date" required value="${new Date().toISOString().slice(0,10)}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        </div>
+                        <div>
+                             <label for="trans-type" class="block text-sm font-medium text-gray-700">Tipo</label>
+                             <select id="trans-type" name="type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                <option value="receita">Receita</option>
+                                <option value="despesa">Despesa</option>
+                             </select>
+                        </div>
+                        <div>
+                            <label for="trans-category" class="block text-sm font-medium text-gray-700">Categoria</label>
+                            <select id="trans-category" name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                         <div class="flex space-x-2">
+                             <button type="submit" class="w-full text-white brand-bg hover:opacity-90 font-bold py-2 px-4 rounded-lg">Guardar</button>
+                             <button type="button" id="cancel-edit-btn" class="w-full bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded-lg hidden">Cancelar</button>
+                         </div>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+                    <h3 class="text-xl font-semibold brand-text mb-4">Histórico de Transações</h3>
+                    <!-- Filtros -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <input type="date" id="filter-start-date" class="block w-full rounded-md border-gray-300 shadow-sm" value="${appState.filters.startDate}">
+                        <input type="date" id="filter-end-date" class="block w-full rounded-md border-gray-300 shadow-sm" value="${appState.filters.endDate}">
+                        <select id="filter-type" class="block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="todos" ${appState.filters.type === 'todos' ? 'selected' : ''}>Todos os Tipos</option>
+                            <option value="receita" ${appState.filters.type === 'receita' ? 'selected' : ''}>Receita</option>
+                            <option value="despesa" ${appState.filters.type === 'despesa' ? 'selected' : ''}>Despesa</option>
+                        </select>
+                        <select id="filter-category" class="block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="todas">Todas as Categorias</option>
+                            ${[...expenseCategories, ...revenueCategories].map(c => `<option value="${c}" ${appState.filters.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <!-- Tabela de Transações -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Data</th>
+                                    <th scope="col" class="px-6 py-3">Descrição</th>
+                                    <th scope="col" class="px-6 py-3">Categoria</th>
+                                    <th scope="col" class="px-6 py-3">Valor</th>
+                                    <th scope="col" class="px-6 py-3">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${transactions.length > 0 ? transactions.map(t => `
+                                    <tr class="bg-white border-b hover:bg-gray-50">
+                                        <td class="px-6 py-4">${new Date(t.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
+                                        <td class="px-6 py-4 font-medium text-gray-900">${t.description}</td>
+                                        <td class="px-6 py-4">${t.category}</td>
+                                        <td class="px-6 py-4 font-semibold ${t.type === 'receita' ? 'text-green-600' : 'text-red-600'}">
+                                            ${t.type === 'receita' ? '+' : '-'} R$ ${Number(t.amount).toFixed(2)}
+                                        </td>
+                                        <td class="px-6 py-4 flex space-x-2">
+                                            <button class="font-medium text-amber-600 hover:underline" data-id="${t.id}" data-action="edit-transaction">Editar</button>
+                                            <button class="font-medium text-red-600 hover:underline" data-id="${t.id}" data-action="delete-transaction">Apagar</button>
+                                        </td>
+                                    </tr>
+                                `).join('') : `<tr><td colspan="5" class="text-center py-4">Nenhuma transação encontrada.</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRotinas() {
+            const { routines, inventory } = appState.data;
+            const routineTypes = [
+                { id: 'daily', title: 'Rotinas Diárias' },
+                { id: 'weekly', title: 'Rotinas Semanais' },
+                { id: 'monthly', title: 'Rotinas Mensais' },
+            ];
+            
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        ${routineTypes.map(type => `
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-xl font-semibold brand-text">${type.title}</h3>
+                                    <button data-routine-type="${type.id}" data-action="narrate-routine" class="brand-bg text-white px-3 py-1 rounded-md text-sm hover:opacity-90 flex items-center">
+                                        <span class="mr-2">&#x1F50A;</span> Ouvir
+                                    </button>
+                                </div>
+                                <div class="space-y-3 mb-4">
+                                    ${routines[type.id].length > 0 ? routines[type.id].map(r => `
+                                        <div class="flex items-center">
+                                            <input id="routine-${r.id}" type="checkbox" ${r.done ? 'checked' : ''} data-id="${r.id}" data-type="${type.id}" data-action="toggle-routine" class="h-5 w-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500">
+                                            <label for="routine-${r.id}" class="ml-3 text-gray-700 ${r.done ? 'line-through text-gray-400' : ''}">${r.text}</label>
+                                        </div>
+                                    `).join('') : '<p class="text-gray-500 text-sm">Nenhuma rotina adicionada.</p>'}
+                                </div>
+                                <form data-type="${type.id}" data-action="add-routine" class="flex space-x-2">
+                                    <input type="text" name="text" placeholder="Nova rotina..." required class="flex-grow rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                    <button type="submit" class="brand-bg text-white px-4 py-2 rounded-md font-semibold hover:opacity-90">Adicionar</button>
+                                </form>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-lg shadow-md sticky top-8">
+                            <h3 class="text-xl font-semibold brand-text mb-4">Inventário</h3>
+                            <form id="inventory-form" class="space-y-4">
+                                <div>
+                                    <label for="inv-birds" class="block text-sm font-medium text-gray-700">Número de Aves</label>
+                                    <input type="number" id="inv-birds" name="birds" value="${inventory.birds}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                </div>
+                                <div>
+                                    <label for="inv-feed" class="block text-sm font-medium text-gray-700">Stock de Ração (Kg)</label>
+                                    <input type="number" id="inv-feed" name="feedKg" value="${inventory.feedKg}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                </div>
+                                <button type="submit" class="w-full text-white brand-bg hover:opacity-90 font-bold py-2 px-4 rounded-lg">Atualizar Inventário</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderClientes() {
+            const { customers, transactions } = appState.data;
+            const customersWithSales = customers.map(customer => {
+                const totalSales = transactions
+                    .filter(t => t.type === 'receita' && t.category === 'Vendas' && t.description.toLowerCase().includes(customer.name.toLowerCase()))
+                    .reduce((sum, t) => sum + Number(t.amount), 0);
+                return { ...customer, totalSales };
+            });
+
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold brand-text mb-4">Lista de Clientes</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left text-gray-500">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Nome</th>
+                                        <th scope="col" class="px-6 py-3">Telefone</th>
+                                        <th scope="col" class="px-6 py-3">Total de Vendas</th>
+                                        <th scope="col" class="px-6 py-3">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${customersWithSales.length > 0 ? customersWithSales.map(c => `
+                                        <tr class="bg-white border-b hover:bg-gray-50">
+                                            <td class="px-6 py-4 font-medium text-gray-900">${c.name}</td>
+                                            <td class="px-6 py-4">${c.phone}</td>
+                                            <td class="px-6 py-4">R$ ${c.totalSales.toFixed(2)}</td>
+                                            <td class="px-6 py-4">
+                                                <button class="font-medium text-red-600 hover:underline" data-id="${c.id}" data-action="delete-customer">Apagar</button>
+                                            </td>
+                                        </tr>
+                                    `).join('') : `<tr><td colspan="4" class="text-center py-4">Nenhum cliente adicionado.</td></tr>`}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-lg shadow-md sticky top-8">
+                            <h3 class="text-xl font-semibold brand-text mb-4">Adicionar Novo Cliente</h3>
+                            <form id="add-customer-form" class="space-y-4">
+                                <div>
+                                    <label for="cust-name" class="block text-sm font-medium text-gray-700">Nome do Cliente</label>
+                                    <input type="text" id="cust-name" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                </div>
+                                <div>
+                                    <label for="cust-phone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                                    <input type="tel" id="cust-phone" name="phone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                </div>
+                                <button type="submit" class="w-full text-white brand-bg hover:opacity-90 font-bold py-2 px-4 rounded-lg">Adicionar Cliente</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMetas() {
+             const { goals } = appState.data;
+             const { totalRevenue } = calculateFinancials();
+             const progress = goals.monthlyRevenue > 0 ? (totalRevenue / goals.monthlyRevenue) * 100 : 0;
+
+             return `
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold brand-text mb-4">Definir Metas</h3>
+                        <form id="goals-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <div>
+                                <label for="goal-revenue" class="block text-sm font-medium text-gray-700">Meta de Receita Mensal (R$)</label>
+                                <input type="number" id="goal-revenue" name="monthlyRevenue" value="${goals.monthlyRevenue}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label for="goal-growth" class="block text-sm font-medium text-gray-700">Taxa de Crescimento Esperada (%)</label>
+                                <input type="number" id="goal-growth" name="growthRate" value="${goals.growthRate}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            </div>
+                            <button type="submit" class="w-full text-white brand-bg hover:opacity-90 font-bold py-2 px-4 rounded-lg">Guardar Metas</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold brand-text mb-2">Progresso da Meta Mensal</h3>
+                        <p class="text-gray-600 mb-4">Alcançou R$ ${totalRevenue.toFixed(2)} de R$ ${goals.monthlyRevenue.toFixed(2)}</p>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="brand-accent h-4 rounded-full" style="width: ${Math.min(progress, 100)}%;"></div>
+                        </div>
+                        <p class="text-right font-semibold brand-text mt-1">${progress.toFixed(1)}%</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold brand-text mb-4">Projeção de Crescimento de Receita</h3>
+                        <canvas id="growthProjectionChart"></canvas>
+                    </div>
+                </div>
+             `;
+        }
+
+        function renderMarketing() {
+            return `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold brand-text mb-4">Gere conteúdo para as suas redes sociais</h3>
+                    <p class="text-gray-600 mb-6">Descreva a sua ideia e deixe a inteligência artificial criar o conteúdo para si. Por exemplo: "um post para o Instagram a anunciar ovos frescos para o fim de semana".</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="marketing-prompt" class="block text-sm font-medium text-gray-700">A sua ideia:</label>
+                            <textarea id="marketing-prompt" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"></textarea>
+                        </div>
+                        
+                        <div class="flex space-x-4">
+                            <button id="generate-text-btn" class="flex-1 text-white brand-bg hover:opacity-90 font-bold py-2 px-4 rounded-lg">Gerar Texto</button>
+                            <button id="generate-image-btn" class="flex-1 text-white brand-bg hover:opacity-90 font-bold py-2 px-4 rounded-lg">Gerar Imagem</button>
+                        </div>
+                    </div>
+                    
+                    <div id="marketing-output" class="mt-8 space-y-6">
+                         <!-- Conteúdo gerado aparecerá aqui -->
+                         <div id="text-output" class="hidden">
+                             <h4 class="font-semibold text-gray-800">Texto Sugerido:</h4>
+                             <div id="text-content" class="mt-2 p-4 bg-gray-100 rounded-md whitespace-pre-wrap"></div>
+                         </div>
+                         <div id="image-output" class="hidden">
+                             <h4 class="font-semibold text-gray-800">Imagem Gerada:</h4>
+                             <div id="image-content" class="mt-2 p-4 bg-gray-100 rounded-md flex justify-center items-center"></div>
+                         </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // --- FUNÇÕES AUXILIARES DE RENDERIZAÇÃO ---
+        
+        function getIconForView(viewId) {
+            const icons = {
+                dashboard: '&#x1F4CA;', // Gráfico de barras
+                financas: '&#x1F4B5;', // Nota de dólar
+                rotinas: '&#x1F4DD;', // Bloco de notas
+                clientes: '&#x1F465;', // Silhuetas de pessoas
+                metas: '&#x1F3AF;', // Alvo
+                marketing: '&#x1F4A1;'  // Lâmpada
+            };
+            return icons[viewId] || '';
+        }
+
+        function renderKPI(title, value, sentiment = 'neutral') {
+            const colors = {
+                positive: 'text-green-600',
+                negative: 'text-red-600',
+                neutral: 'brand-text'
+            };
+            return `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-sm font-medium text-gray-500">${title}</h4>
+                    <p class="text-2xl font-bold mt-1 ${colors[sentiment]}">${value}</p>
+                </div>
+            `;
+        }
+
+        // --- LÓGICA DE EVENTOS ---
+
+        function attachEventListeners() {
+            // Navegação
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    appState.currentView = e.currentTarget.dataset.view;
+                    render();
+                });
+            });
+
+            // Ações específicas da view
+            switch (appState.currentView) {
+                case 'financas': setupFinancasListeners(); break;
+                case 'rotinas': setupRotinasListeners(); break;
+                case 'clientes': setupClientesListeners(); break;
+                case 'metas': setupMetasListeners(); break;
+                case 'marketing': setupMarketingListeners(); break;
+            }
+        }
+        
+        function setupFinancasListeners() {
+            // Formulário de adicionar/editar transação
+            const form = document.getElementById('add-transaction-form');
+            if (form) {
+                form.addEventListener('submit', handleTransactionSubmit);
+            }
+            
+            // Botões de editar/apagar
+            document.querySelector('#content')?.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.dataset.action === 'edit-transaction') {
+                    handleEditTransaction(target.dataset.id);
+                }
+                if (target.dataset.action === 'delete-transaction') {
+                    if (confirm('Tem a certeza que deseja apagar esta transação?')) {
+                        handleDeleteTransaction(target.dataset.id);
                     }
                 }
-            }
-        });
-
-        // Lógica das Abas
-        const tabs = ['daily', 'weekly', 'monthly'];
-        tabs.forEach(tabId => {
-            document.getElementById(`tab-${tabId}`).addEventListener('click', () => {
-                // Desativa todas as abas e esconde todos os conteúdos
-                tabs.forEach(id => {
-                    document.getElementById(`tab-${id}`).classList.remove('active');
-                    document.getElementById(`content-${id}`).classList.add('hidden');
-                });
-                // Ativa a aba clicada e mostra o conteúdo correspondente
-                document.getElementById(`tab-${tabId}`).classList.add('active');
-                document.getElementById(`content-${tabId}`).classList.remove('hidden');
             });
-        });
+
+            // Botão cancelar edição
+            document.getElementById('cancel-edit-btn')?.addEventListener('click', resetTransactionForm);
+
+            // Seleção de tipo de transação (para atualizar categorias)
+            document.getElementById('trans-type')?.addEventListener('change', updateCategoryOptions);
+            updateCategoryOptions(); // Chamar na inicialização
+
+            // Filtros
+            ['filter-start-date', 'filter-end-date', 'filter-type', 'filter-category'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', handleFilterChange);
+            });
+        }
+        
+        function setupRotinasListeners() {
+            document.querySelector('#content')?.addEventListener('submit', e => {
+                if (e.target.dataset.action === 'add-routine') {
+                    e.preventDefault();
+                    handleAddRoutine(e.target);
+                }
+            });
+
+            document.querySelector('#content')?.addEventListener('change', e => {
+                 if(e.target.dataset.action === 'toggle-routine') {
+                     handleToggleRoutine(e.target);
+                 }
+            });
+
+            document.querySelector('#content')?.addEventListener('click', e => {
+                if (e.target.closest('[data-action="narrate-routine"]')) {
+                    handleNarrateRoutine(e.target.closest('[data-action="narrate-routine"]').dataset.routineType);
+                }
+            });
+            
+            document.getElementById('inventory-form')?.addEventListener('submit', handleInventoryUpdate);
+        }
+        
+        function setupClientesListeners() {
+            document.getElementById('add-customer-form')?.addEventListener('submit', handleAddCustomer);
+            document.querySelector('#content')?.addEventListener('click', e => {
+                if (e.target.dataset.action === 'delete-customer') {
+                    if (confirm('Tem a certeza que deseja apagar este cliente?')) {
+                        handleDeleteCustomer(e.target.dataset.id);
+                    }
+                }
+            });
+        }
+        
+        function setupMetasListeners() {
+            document.getElementById('goals-form')?.addEventListener('submit', handleGoalsUpdate);
+        }
+
+        function setupMarketingListeners() {
+            document.getElementById('generate-text-btn')?.addEventListener('click', () => handleGenerateContent('text'));
+            document.getElementById('generate-image-btn')?.addEventListener('click', () => handleGenerateContent('image'));
+        }
+
+        // --- MANIPULADORES DE EVENTOS (HANDLERS) ---
+        
+        async function handleTransactionSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const id = formData.get('id');
+            const transaction = {
+                description: formData.get('description'),
+                amount: parseFloat(formData.get('amount')),
+                date: formData.get('date'),
+                type: formData.get('type'),
+                category: formData.get('category'),
+            };
+
+            let updatedTransactions;
+            if (id) { // Editando
+                updatedTransactions = appState.data.transactions.map(t => t.id === id ? { ...t, ...transaction } : t);
+            } else { // Adicionando
+                transaction.id = crypto.randomUUID();
+                updatedTransactions = [...appState.data.transactions, transaction];
+            }
+            
+            await updateFirestore({ transactions: updatedTransactions });
+            showFeedback('Transação guardada com sucesso!', 'success');
+            resetTransactionForm();
+        }
+        
+        function handleEditTransaction(id) {
+            const transaction = appState.data.transactions.find(t => t.id === id);
+            if (!transaction) return;
+            const form = document.getElementById('add-transaction-form');
+            form.querySelector('[name="id"]').value = transaction.id;
+            form.querySelector('[name="description"]').value = transaction.description;
+            form.querySelector('[name="amount"]').value = transaction.amount;
+            form.querySelector('[name="date"]').value = transaction.date;
+            form.querySelector('[name="type"]').value = transaction.type;
+            updateCategoryOptions(); // Atualiza as opções de categoria
+            form.querySelector('[name="category"]').value = transaction.category;
+
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function handleDeleteTransaction(id) {
+            const updatedTransactions = appState.data.transactions.filter(t => t.id !== id);
+            await updateFirestore({ transactions: updatedTransactions });
+            showFeedback('Transação apagada.', 'success');
+        }
+
+        function resetTransactionForm() {
+            const form = document.getElementById('add-transaction-form');
+            form.reset();
+            form.querySelector('[name="id"]').value = '';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+            updateCategoryOptions();
+        }
+
+        function updateCategoryOptions() {
+            const type = document.getElementById('trans-type').value;
+            const categorySelect = document.getElementById('trans-category');
+            const expenseCategories = ['Alimentação', 'Manutenção', 'Saúde', 'Embalagens', 'Outros'];
+            const revenueCategories = ['Vendas', 'Outros'];
+            const options = type === 'receita' ? revenueCategories : expenseCategories;
+            categorySelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        }
+        
+        function handleFilterChange() {
+             appState.filters.startDate = document.getElementById('filter-start-date').value;
+             appState.filters.endDate = document.getElementById('filter-end-date').value;
+             appState.filters.type = document.getElementById('filter-type').value;
+             appState.filters.category = document.getElementById('filter-category').value;
+             render();
+        }
+
+        async function handleAddRoutine(form) {
+            const type = form.dataset.type;
+            const text = form.querySelector('[name="text"]').value;
+            if (!text) return;
+            
+            const newRoutine = { id: crypto.randomUUID(), text, done: false };
+            const updatedRoutines = {
+                ...appState.data.routines,
+                [type]: [...appState.data.routines[type], newRoutine]
+            };
+            
+            await updateFirestore({ routines: updatedRoutines });
+            form.reset();
+        }
+
+        async function handleToggleRoutine(checkbox) {
+            const { id, type } = checkbox.dataset;
+            const updatedRoutines = { ...appState.data.routines };
+            updatedRoutines[type] = updatedRoutines[type].map(r => 
+                r.id === id ? { ...r, done: checkbox.checked } : r
+            );
+            await updateFirestore({ routines: updatedRoutines });
+        }
+
+        async function handleInventoryUpdate(e) {
+            e.preventDefault();
+            const form = e.target;
+            const updatedInventory = {
+                birds: parseInt(form.querySelector('[name="birds"]').value) || 0,
+                feedKg: parseFloat(form.querySelector('[name="feedKg"]').value) || 0,
+            };
+            await updateFirestore({ inventory: updatedInventory });
+            showFeedback('Inventário atualizado com sucesso!', 'success');
+        }
+        
+        async function handleAddCustomer(e) {
+            e.preventDefault();
+            const form = e.target;
+            const newCustomer = {
+                id: crypto.randomUUID(),
+                name: form.querySelector('[name="name"]').value,
+                phone: form.querySelector('[name="phone"]').value,
+            };
+            const updatedCustomers = [...appState.data.customers, newCustomer];
+            await updateFirestore({ customers: updatedCustomers });
+            form.reset();
+            showFeedback('Cliente adicionado!', 'success');
+        }
+
+        async function handleDeleteCustomer(id) {
+            const updatedCustomers = appState.data.customers.filter(c => c.id !== id);
+            await updateFirestore({ customers: updatedCustomers });
+            showFeedback('Cliente apagado.', 'success');
+        }
+
+        async function handleGoalsUpdate(e) {
+            e.preventDefault();
+            const form = e.target;
+            const updatedGoals = {
+                monthlyRevenue: parseFloat(form.querySelector('[name="monthlyRevenue"]').value) || 0,
+                growthRate: parseFloat(form.querySelector('[name="growthRate"]').value) || 0,
+            };
+            await updateFirestore({ goals: updatedGoals });
+            showFeedback('Metas atualizadas com sucesso!', 'success');
+        }
+        
+        async function handleGenerateContent(type) {
+            const prompt = document.getElementById('marketing-prompt').value;
+            if (!prompt) {
+                showFeedback('Por favor, escreva a sua ideia primeiro.', 'error');
+                return;
+            }
+
+            const outputDivId = type === 'text' ? 'text-output' : 'image-output';
+            const contentDivId = type === 'text' ? 'text-content' : 'image-content';
+            const outputDiv = document.getElementById(outputDivId);
+            const contentDiv = document.getElementById(contentDivId);
+
+            outputDiv.classList.remove('hidden');
+            contentDiv.innerHTML = '<div class="loader mx-auto"></div><p class="text-center mt-2">A gerar... isto pode levar alguns segundos.</p>';
+
+            try {
+                let result;
+                if (type === 'text') {
+                    const systemPrompt = "Aja como um especialista em marketing para um pequeno negócio de ovos caipiras premium. Crie um texto curto, amigável e profissional para redes sociais. Inclua emojis relevantes e uma chamada para ação clara.";
+                    result = await callGeminiTextAPI(prompt, systemPrompt);
+                    contentDiv.textContent = result;
+                } else { // image
+                    const enhancedPrompt = `Fotografia profissional e realista de ovos caipiras frescos, estilo de vida de quinta, luz natural da manhã. Tema: ${prompt}. Estética limpa e premium.`;
+                    result = await callGeminiImageAPI(enhancedPrompt);
+                    contentDiv.innerHTML = `<img src="${result}" alt="Imagem gerada por IA" class="rounded-lg max-w-full h-auto shadow-md">`;
+                }
+            } catch (error) {
+                console.error(`Error generating ${type}:`, error);
+                contentDiv.innerHTML = `<p class="text-red-500">Ocorreu um erro ao gerar o conteúdo. Tente novamente.</p>`;
+                showFeedback(`Erro ao gerar ${type}.`, 'error');
+            }
+        }
+        
+        async function handleNarrateRoutine(routineType) {
+            if (appState.isAudioPlaying) {
+                showFeedback('Aguarde a narração atual terminar.', 'info');
+                return;
+            }
+            const routines = appState.data.routines[routineType];
+            if (routines.length === 0) {
+                showFeedback('Não há rotinas para narrar.', 'info');
+                return;
+            }
+
+            appState.isAudioPlaying = true;
+            const button = document.querySelector(`[data-routine-type="${routineType}"][data-action="narrate-routine"]`);
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>';
+            button.disabled = true;
+
+            const textToNarrate = `Vamos começar as rotinas ${routineType === 'daily' ? 'diárias' : routineType}. Primeira tarefa: ${routines.map(r => r.text).join('. Próxima tarefa: ')}`;
+            
+            try {
+                const audioUrl = await callGeminiTTSAPI(textToNarrate);
+                const audio = new Audio(audioUrl);
+                audio.play();
+                audio.onended = () => {
+                    appState.isAudioPlaying = false;
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    URL.revokeObjectURL(audioUrl);
+                };
+            } catch (error) {
+                console.error('Error narrating routine:', error);
+                showFeedback('Erro ao gerar o áudio.', 'error');
+                appState.isAudioPlaying = false;
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // --- LÓGICA DE CÁLCULOS E DADOS ---
+        
+        function getFilteredData() {
+            let transactions = [...appState.data.transactions];
+
+            if (appState.filters.type !== 'todos') {
+                transactions = transactions.filter(t => t.type === appState.filters.type);
+            }
+            if (appState.filters.category !== 'todas') {
+                transactions = transactions.filter(t => t.category === appState.filters.category);
+            }
+            if (appState.filters.startDate) {
+                transactions = transactions.filter(t => t.date >= appState.filters.startDate);
+            }
+            if (appState.filters.endDate) {
+                transactions = transactions.filter(t => t.date <= appState.filters.endDate);
+            }
+            
+            // Ordenar por data mais recente
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            return { transactions };
+        }
+
+        function calculateFinancials() {
+            const transactions = appState.data.transactions;
+            const totalRevenue = transactions.filter(t => t.type === 'receita').reduce((sum, t) => sum + Number(t.amount), 0);
+            const totalExpense = transactions.filter(t => t.type === 'despesa').reduce((sum, t) => sum + Number(t.amount), 0);
+            const balance = totalRevenue - totalExpense;
+            
+            const dozensSold = transactions
+                .filter(t => t.type === 'receita' && t.category === 'Vendas')
+                .reduce((sum, t) => {
+                    const match = t.description.match(/(\d+)\s*dúzias?/i);
+                    return sum + (match ? parseInt(match[1], 10) : 0);
+                }, 0);
+
+            const profitPerDozen = dozensSold > 0 ? balance / dozensSold : 0;
+            
+            return { totalRevenue, totalExpense, balance, profitPerDozen };
+        }
+
+        // --- LÓGICA DOS GRÁFICOS (CHART.JS) ---
+
+        function updateCharts() {
+            if (appState.currentView === 'dashboard') {
+                createMonthlyEvolutionChart();
+                createExpensesByCategoryChart();
+                createSalesByCustomerChart();
+            }
+            if (appState.currentView === 'metas') {
+                createGrowthProjectionChart();
+            }
+        }
+
+        function createChart(canvasId, type, data, options) {
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            if (!ctx) return;
+            if (appState.charts[canvasId]) {
+                appState.charts[canvasId].destroy();
+            }
+            appState.charts[canvasId] = new Chart(ctx, { type, data, options });
+        }
+
+        function createMonthlyEvolutionChart() {
+            const data = { labels: [], datasets: [{ label: 'Receita', data: [], backgroundColor: 'rgba(75, 192, 192, 0.6)' }, { label: 'Despesa', data: [], backgroundColor: 'rgba(255, 99, 132, 0.6)' }] };
+            const monthlyData = {};
+            
+            appState.data.transactions.forEach(t => {
+                const month = new Date(t.date).toISOString().slice(0, 7);
+                if (!monthlyData[month]) monthlyData[month] = { revenue: 0, expense: 0 };
+                if (t.type === 'receita') monthlyData[month].revenue += Number(t.amount);
+                else monthlyData[month].expense += Number(t.amount);
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            sortedMonths.forEach(month => {
+                const date = new Date(month + '-02'); // Avoid timezone issues
+                data.labels.push(date.toLocaleString('default', { month: 'short', year: '2-digit' }));
+                data.datasets[0].data.push(monthlyData[month].revenue);
+                data.datasets[1].data.push(monthlyData[month].expense);
+            });
+
+            createChart('monthlyEvolutionChart', 'bar', data, { responsive: true, scales: { x: { stacked: false }, y: { stacked: false } } });
+        }
+
+        function createExpensesByCategoryChart() {
+            const categoryData = {};
+            appState.data.transactions.filter(t => t.type === 'despesa').forEach(t => {
+                categoryData[t.category] = (categoryData[t.category] || 0) + Number(t.amount);
+            });
+
+            const data = {
+                labels: Object.keys(categoryData),
+                datasets: [{ data: Object.values(categoryData), backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'] }]
+            };
+
+            createChart('expensesByCategoryChart', 'pie', data, { responsive: true });
+        }
+        
+        function createSalesByCustomerChart() {
+            const customerSales = {};
+            appState.data.customers.forEach(c => customerSales[c.name] = 0);
+            
+            appState.data.transactions.filter(t => t.type === 'receita' && t.category === 'Vendas').forEach(t => {
+                const customer = appState.data.customers.find(c => t.description.toLowerCase().includes(c.name.toLowerCase()));
+                if(customer) {
+                    customerSales[customer.name] += Number(t.amount);
+                }
+            });
+
+            const data = {
+                labels: Object.keys(customerSales),
+                datasets: [{
+                    label: 'Vendas',
+                    data: Object.values(customerSales),
+                    backgroundColor: 'rgba(210, 180, 140, 0.6)',
+                    borderColor: 'rgba(139, 69, 19, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            createChart('salesByCustomerChart', 'bar', data, { responsive: true, indexAxis: 'y' });
+        }
+        
+        function createGrowthProjectionChart() {
+            const { totalRevenue } = calculateFinancials();
+            const { growthRate } = appState.data.goals;
+            const labels = [];
+            const projectionData = [];
+            let currentRevenue = totalRevenue;
+
+            for (let i = 0; i < 12; i++) {
+                const date = new Date();
+                date.setMonth(date.getMonth() + i);
+                labels.push(date.toLocaleString('default', { month: 'short' }));
+                projectionData.push(currentRevenue);
+                currentRevenue *= (1 + growthRate / 100);
+            }
+            
+            const data = {
+                labels,
+                datasets: [{
+                    label: 'Projeção de Receita',
+                    data: projectionData,
+                    fill: false,
+                    borderColor: '#8B4513',
+                    tension: 0.1
+                }]
+            };
+            
+            createChart('growthProjectionChart', 'line', data, { responsive: true });
+        }
+
+        // --- INTEGRAÇÃO COM FIREBASE ---
+        
+        async function setupFirebase() {
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    userId = user.uid;
+                    dbRef = doc(db, `artifacts/${appId}/users/${userId}/app_data/galinheiro_data`);
+                    listenToDataChanges();
+                } else {
+                    console.log("User is not signed in.");
+                    appState.isLoading = false;
+                    render();
+                }
+            });
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed: ", error);
+                appState.isLoading = false;
+                render();
+            }
+        }
+        
+        function listenToDataChanges() {
+            if (unsubscribe) unsubscribe(); // Cancelar listener anterior, se houver
+            
+            unsubscribe = onSnapshot(dbRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    // Mesclar dados recebidos com a estrutura padrão para evitar erros
+                    appState.data = {
+                        transactions: data.transactions || [],
+                        customers: data.customers || [],
+                        inventory: { birds: 0, feedKg: 0, ...data.inventory },
+                        routines: { daily: [], weekly: [], monthly: [], ...data.routines },
+                        goals: { monthlyRevenue: 1000, growthRate: 5, ...data.goals },
+                    };
+                } else {
+                    console.log("No such document! Initializing with default data.");
+                    // Se o documento não existe, inicializa-o
+                    updateFirestore(appState.data);
+                }
+                appState.isLoading = false;
+                render();
+            }, (error) => {
+                console.error("Error listening to document: ", error);
+                showFeedback('Erro ao carregar dados em tempo real.', 'error');
+                appState.isLoading = false;
+                render();
+            });
+        }
+        
+        async function updateFirestore(dataToUpdate) {
+            if (!dbRef) {
+                console.error("Firestore reference is not set.");
+                showFeedback('Erro: não foi possível conectar à base de dados.', 'error');
+                return;
+            }
+            try {
+                // Usamos setDoc com merge: true para criar o documento se não existir
+                // ou atualizar campos específicos sem sobrescrever o documento inteiro.
+                await setDoc(dbRef, dataToUpdate, { merge: true });
+            } catch (error) {
+                console.error("Error updating Firestore: ", error);
+                showFeedback('Erro ao guardar os dados.', 'error');
+            }
+        }
+        
+        // --- INTEGRAÇÃO COM API GEMINI ---
+        
+        const GEMINI_API_KEY = ""; // Será fornecido pelo ambiente
+        
+        async function callApiWithExponentialBackoff(apiUrl, payload) {
+            let attempt = 0;
+            const maxAttempts = 5;
+            while(attempt < maxAttempts) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    if (!response.ok) {
+                         const error = await response.json();
+                         throw new Error(error.error ? error.error.message : 'API Request Failed');
+                    }
+                    return await response.json();
+                } catch(error) {
+                    console.error(`Attempt ${attempt+1} failed:`, error.message);
+                    attempt++;
+                    if(attempt >= maxAttempts) throw error;
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                }
+            }
+        }
+
+        async function callGeminiTextAPI(userPrompt, systemPrompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            const result = await callApiWithExponentialBackoff(apiUrl, payload);
+            return result.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar texto.";
+        }
+
+        async function callGeminiImageAPI(prompt) {
+             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${GEMINI_API_KEY}`;
+             const payload = { instances: [{ prompt }], parameters: { "sampleCount": 1} };
+             const result = await callApiWithExponentialBackoff(apiUrl, payload);
+             const base64Data = result.predictions?.[0]?.bytesBase64Encoded;
+             if(base64Data) {
+                 return `data:image/png;base64,${base64Data}`;
+             }
+             throw new Error("Não foi possível gerar a imagem.");
+        }
+
+        async function callGeminiTTSAPI(text) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${GEMINI_API_KEY}`;
+            const payload = {
+                contents: [{ parts: [{ text: `Diga de forma clara e motivadora: ${text}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            
+            const result = await callApiWithExponentialBackoff(apiUrl, payload);
+            const audioPart = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = audioPart?.inlineData?.data;
+            const mimeType = audioPart?.inlineData?.mimeType;
+
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, 1, sampleRate); // 1 channel
+                return URL.createObjectURL(wavBlob);
+            }
+            throw new Error("Não foi possível gerar o áudio.");
+        }
+
+
+        // --- FUNÇÕES UTILITÁRIAS ---
+        
+        function showFeedback(message, type = 'info') {
+            const modal = document.getElementById('feedback-modal');
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            modal.innerHTML = `
+                <div class="${colors[type]} text-white font-bold rounded-lg shadow-xl py-3 px-6">
+                    ${message}
+                </div>
+            `;
+            modal.style.transform = 'translateX(0)';
+            setTimeout(() => {
+                modal.style.transform = 'translateX(200%)';
+            }, 3000);
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, numChannels, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+
+            // RIFF chunk descriptor
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.length * 2, true);
+            writeString(view, 8, 'WAVE');
+            // FMT sub-chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true);
+            // data sub-chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.length * 2, true);
+
+            // Write PCM data
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+            
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        // --- INICIALIZAÇÃO DA APLICAÇÃO ---
+
+        function init() {
+            try {
+                firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            } catch(e) {
+                console.error("Firebase config is not a valid JSON", e);
+                document.getElementById('app').innerHTML = `<div class="p-8 text-center text-red-600 font-semibold">Erro Crítico: A configuração da aplicação é inválida. Contacte o suporte.</div>`;
+                return;
+            }
+            
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            render(); // Render inicial de loading
+            setupFirebase();
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
+
